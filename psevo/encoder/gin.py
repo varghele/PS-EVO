@@ -31,7 +31,13 @@ class GINEEncoder(nn.Module):
 
         # GINE convolution layer with MLP update function
         # Uses a 2-layer MLP with ReLU activation for node updates
-        self.conv = GINEConv(MLP(dim_hidden, dim_hidden, dim_hidden, nn.ReLU, 2))
+        self.conv = GINEConv(
+            MLP(
+                in_channels=dim_hidden,
+                hidden_channels=dim_hidden,
+                out_channels=dim_hidden,
+                num_layers=2,
+                act="relu",))
 
         # Final linear layer to map concatenated features to output dimension
         # Input size is dim_hidden * t because we concatenate all t iterations
