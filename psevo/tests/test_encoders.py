@@ -7,7 +7,7 @@ import numpy as np
 import pytest
 
 from psevo.encoder.gin import GINEEncoder
-from psevo.encoder.chebnet import ChebEncoder
+from psevo.encoder.cheb import ChebEncoder
 
 class TestEncoders:
     """Test suite for both GINEEncoder and ChebEncoder."""
