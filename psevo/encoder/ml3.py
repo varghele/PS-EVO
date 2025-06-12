@@ -39,7 +39,13 @@ class SpectralConvolution(MessagePassing):
         bias (bool): Whether to use bias parameters
     """
 
-    def __init__(self, in_channels, out_channels, K=1, selfconn=True, depthwise=False, bias=True, **kwargs):
+    def __init__(self,
+                 in_channels,
+                 out_channels,
+                 K=1,
+                 selfconn=True,
+                 depthwise=False,
+                 bias=True, **kwargs):
         kwargs.setdefault('aggr', 'add')  # Sum aggregation for message passing
         super(SpectralConvolution, self).__init__(**kwargs)
 
@@ -78,12 +84,17 @@ class SpectralConvolution(MessagePassing):
         if self.depthwise:
             zeros(self.DSweight)
 
-    def forward(self, x, edge_index, edge_attr, edge_weight: OptTensor = None,
-                batch: OptTensor = None, lambda_max: OptTensor = None):
+    def forward(self,
+                x,
+                edge_index,
+                edge_attr,
+                edge_weight: OptTensor = None,
+                batch: OptTensor = None,
+                lambda_max: OptTensor = None):
         """
         Forward pass of spectral convolution.
 
-        Mathematical Operation:
+        Mathematical Background:
         For each spectral support s:
         1. h_s = C(s) @ x  (message passing with s-th spectral support)
         2. out += h_s @ W_s  (apply learnable transformation)
@@ -302,9 +313,8 @@ class GNNML3Layer(torch.nn.Module):
 
 class GNNML3Model(nn.Module):
     """
-    Complete GNNML3 Model for testing.
-
-    This implements the full GNNML3 architecture with preprocessing and multiple layers.
+    Complete GNNML3 Model.
+    Full GNNML3 architecture with preprocessing and multiple layers.
     """
 
     def __init__(self, dim_in, dim_out, dim_hidden=64, num_layers=3, num_supports=5,
