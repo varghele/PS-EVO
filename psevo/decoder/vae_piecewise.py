@@ -4,26 +4,22 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+from torch_geometric.nn import MLP
+
 from rdkit import Chem
 
 from psevo.encoder.gin import GINEEncoder
 from psevo.encoder.cheb import ChebEncoder
 from psevo.encoder.ml3 import GNNML3Model as ML3Encoder
 
-from torch_geometric.nn import MLP
-
 from psevo.utils.chem_utils import smiles2molecule, valence_check, cnt_atom, cycle_check
+
 
 class VAEPieceDecoder(nn.Module):
     """ Variational Autoencoder Piece Decoder for molecular generation.
     This decoder generates molecules in two stages:
     1. Sequential piece generation using RNN (molecular fragments/pieces)
     2. Edge prediction between atoms using graph neural networks
-
-    The VAE framework allows for:
-    - Latent space interpolation between molecules
-    - Conditional generation based on molecular properties
-    - Stochastic sampling for diverse molecule generation
 
     Mathematical Background:
     - Uses reparameterization trick: z = μ + σ * ε, where ε ~ N(0,1)
@@ -221,10 +217,6 @@ class VAEPieceDecoder(nn.Module):
 
     def embed_atom(self, atom_ids, piece_ids, pos_ids):
         """ Create multi-modal atom embeddings by combining different feature types.
-        This function creates rich atom representations by concatenating:
-        1. Chemical element information (C, N, O, etc.)
-        2. Molecular piece/fragment information (functional groups)
-        3. Positional information (sequence order in generation)
 
         Args:
             atom_ids (Tensor): Atom type indices [batch_size, num_atoms]
