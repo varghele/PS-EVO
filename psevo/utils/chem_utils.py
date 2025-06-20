@@ -82,6 +82,82 @@ def smiles2molecule(smiles: str, kekulize=True):
     return mol
 
 
+def molecule2smiles(mol):
+    """ Convert an RDKit molecule object to SMILES string representation.
+    This is a simple wrapper around RDKit's MolToSmiles function that
+    provides a consistent interface for molecular string conversion.
+
+    Args:
+        mol (Chem.Mol): RDKit molecule object
+
+    Returns:
+        str: SMILES string representation of the molecule
+
+    Note:
+        This function uses RDKit's default SMILES generation settings.
+        For more control over the output format, use Chem.MolToSmiles
+        directly with specific parameters.
+    """
+    return Chem.MolToSmiles(mol)
+
+
+def get_submol(mol, idx2atom):
+    """ Extract a submolecule from a larger molecule based on specified atom indices.
+    This function creates a new molecule containing only the atoms specified
+    in the idx2atom dictionary, along with all bonds between those atoms.
+    It's commonly used in molecular piece extraction and fragment analysis.
+
+    Args:
+        mol (Chem.Mol): Source RDKit molecule object
+        idx2atom (dict): Dictionary mapping atom indices to atom symbols
+                        {atom_index: atom_symbol, ...}
+
+    Returns:
+        Chem.Mol: New molecule containing only the specified atoms and their bonds
+    """
+    # Create editable molecule for building submolecule
+    sub_mol = Chem.RWMol()
+
+    # Mapping from original atom indices to new atom indices
+    old_to_new_id = {}
+
+    # Add atoms to submolecule
+    for new_id, old_id in enumerate(idx2atom.keys()):
+        # Get original atom and create new atom with same properties
+        original_atom = mol.GetAtomWithIdx(old_id)
+        new_atom = Chem.Atom(original_atom.GetSymbol())
+
+        # Add atom to submolecule and store index mapping
+        sub_mol.AddAtom(new_atom)
+        old_to_new_id[old_id] = new_id
+
+    # Add bonds between atoms in the submolecule
+    for atom_id in idx2atom:
+        atom = mol.GetAtomWithIdx(atom_id)
+
+        # Check all bonds of this atom
+        for bond in atom.GetBonds():
+            # Get the other atom in this bond
+            neighbor_id = bond.GetBeginAtomIdx()
+            if neighbor_id == atom_id:
+                neighbor_id = bond.GetEndAtomIdx()
+
+            # Only add bond if:
+            # 1. Neighbor is also in our submolecule
+            # 2. We haven't already added this bond (neighbor_id < atom_id prevents duplicates)
+            if neighbor_id in idx2atom and neighbor_id < atom_id:
+                # Add bond using new atom indices
+                sub_mol.AddBond(
+                    old_to_new_id[atom_id],
+                    old_to_new_id[neighbor_id],
+                    bond.GetBondType()
+                )
+
+    # Convert to final molecule object
+    sub_mol = sub_mol.GetMol()
+    return sub_mol
+
+
 def valence_check(aid1, aid2, edges1, edges2, new_edge, vocab, c1=0, c2=0):
     """
     Check if adding a new bond between two atoms would violate valence rules.
