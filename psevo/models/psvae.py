@@ -57,8 +57,8 @@ class PSVAEModel(nn.Module):
         self.encoder = self._create_encoder(encoder_type, encoder_config)
 
         # Initialize other components
-        self.predictor = Predictor(**(config['predictor']))
-        self.decoder = VAEPieceDecoder(**(config['vae_piece_decoder']))
+        self.predictor = Predictor(**(config['predictor'])).to("cuda") # TODO: make argument
+        self.decoder = VAEPieceDecoder(**(config['vae_piece_decoder']), tokenizer=tokenizer).to("cuda") # TODO: make argument
 
         # Loss functions
         self.pred_loss = nn.MSELoss()  # Property prediction loss
@@ -91,7 +91,7 @@ class PSVAEModel(nn.Module):
                 dim_hidden=dim_hidden,
                 dim_out=dim_out,
                 t=encoder_config.get('t', 4)  # Number of message passing iterations
-            )
+            ).to("cuda")
 
         elif encoder_type == "cheb":
             # Chebyshev Spectral Graph Convolution
@@ -103,7 +103,7 @@ class PSVAEModel(nn.Module):
                 dim_out=dim_out,
                 t=encoder_config.get('t', 4),  # Number of message passing iterations
                 K=encoder_config.get('K', 3)  # Chebyshev filter size
-            )
+            ).to("cuda")
 
         elif encoder_type == "ml3":
             # GNNML3 with 3-WL expressive power
@@ -116,7 +116,7 @@ class PSVAEModel(nn.Module):
                 num_supports=encoder_config.get('num_supports', 5),  # Spectral supports
                 bandwidth=encoder_config.get('bandwidth', 5.0),  # Spectral bandwidth
                 use_adjacency=encoder_config.get('use_adjacency', False)  # Use adjacency vs Laplacian
-            )
+            ).to("cuda")
 
     def forward(self, batch, return_accu=False):
         """

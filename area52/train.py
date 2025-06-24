@@ -2,6 +2,7 @@ import argparse
 import torch
 import torch.optim as optim
 from torch.utils.data import DataLoader
+import os
 
 from psevo.models.psvae import PSVAEModel
 from psevo.pipe.trainer import PSVAETrainer
@@ -65,6 +66,67 @@ def parse():
     parser.add_argument('--piece_hidden_dim', type=int, default=200,
                         help='Hidden dim for rnn used in piece generation')
     return parser.parse_args()
+
+
+def get_default_args():
+    """
+    Generate default arguments for PS-VAE training with fixed dataset paths.
+
+    This function provides a convenient way to set up training arguments
+    without requiring command line input. Useful for notebooks, scripts,
+    or when you want to programmatically set training parameters.
+
+    Returns:
+        argparse.Namespace: Namespace object with default training arguments
+    """
+    import argparse
+
+    # Create namespace object to mimic parsed arguments
+    args = argparse.Namespace()
+
+    # Fixed dataset paths
+    base_pth = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    print(base_pth)
+    args.train_set = os.path.join(base_pth, 'data/zinc250k/train.txt')
+    args.valid_set = os.path.join(base_pth, 'data/zinc250k/valid.txt')
+    args.test_set = os.path.join(base_pth, 'data/zinc250k/test.txt')
+    args.vocab = os.path.join(base_pth, 'area52/vocab_qm9')
+    args.save_dir = 'checkpoints/'
+
+    # Training parameters
+    args.shuffle = True
+    args.batch_size = 256
+    args.lr = 1e-3
+    args.epochs = 100
+    args.patience = 3
+    args.grad_clip = 10.0
+    args.num_workers = 4
+
+    # Loss weighting parameters
+    args.alpha = 0.7  # Balance between reconstruction and prediction
+    args.beta = 0.0  # Base KL weight
+    args.step_beta = 0.002
+    args.max_beta = 0.01
+    args.kl_warmup = 1000
+    args.kl_anneal_iter = 1000
+
+    # Model architecture parameters
+    args.encoder_type = 'cheb'  # or 'cheb', 'ml3'
+    args.props = ['qed', 'logp']
+    args.predictor_hidden_dim = 200
+    args.node_hidden_dim = 300
+    args.graph_embedding_dim = 400
+    args.latent_dim = 56
+
+    # PS-VAE decoder specific parameters
+    args.max_pos = 50
+    args.atom_embedding_dim = 50
+    args.piece_embedding_dim = 100
+    args.pos_embedding_dim = 50
+    args.piece_hidden_dim = 200
+
+    return args
+
 
 def build_config(args, tokenizer):
     """Build model configuration from arguments."""
@@ -136,11 +198,11 @@ config = {
     'grad_clip': 10.0,   # Gradient clipping
     'selected_properties': [0, 1, 2],  # Which properties to predict
     'encoder': {
-        'type': 'gin',  # or 'cheb', 'ml3'
-        'dim_in': 64,
+        'type': 'ml3',  # 'gin' or 'cheb', 'ml3'
+        'dim_in': 200, # TODO: This is atom+piece+pos embedding
         'dim_hidden': 128,
         'dim_out': 256,
-        'num_edge_type': 5,
+        'num_edge_type': 4,
         't': 4
     },
     'predictor': {
@@ -155,7 +217,7 @@ config = {
         'pos_embedding_dim': 50,
         'piece_hidden_dim': 200,
         'node_hidden_dim': 300,
-        'num_edge_type': 5,
+        'num_edge_type': 4,
         'cond_dim': 256,
         'latent_dim': 56,
         't': 4
@@ -164,7 +226,8 @@ config = {
 
 def main():
     """Main training function."""
-    args = parse()
+    args = get_default_args()
+    #args = parse()
 
     print("Loading tokenizer...")
     tokenizer = Tokenizer(args.vocab)
