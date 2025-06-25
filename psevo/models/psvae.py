@@ -360,6 +360,14 @@ class PSVAEModel(nn.Module):
         self.train()
         return molecule
 
+    def generate_molecule_no_vae(self, latent_vec, max_atom_num=50, add_edge_th=0.5, temperature=1.0):
+        """Generate a molecule from latent embedding without the VAE approach."""
+        self.eval()
+        with torch.no_grad():
+            molecule = self.decoder.inference(latent_vec, max_atom_num, add_edge_th, temperature)
+        self.train()
+        return molecule
+
     def generate_molecule_with_constraint(self, properties, constraint_mol,
                                           max_atom_num=50, add_edge_th=0.5, temperature=1.0):
         """Generate a molecule from target properties with structural constraints."""
