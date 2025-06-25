@@ -90,8 +90,9 @@ def get_default_args():
     args.train_set = os.path.join(base_pth, 'data/zinc250k/train.txt')
     args.valid_set = os.path.join(base_pth, 'data/zinc250k/valid.txt')
     args.test_set = os.path.join(base_pth, 'data/zinc250k/test.txt')
-    args.vocab = os.path.join(base_pth, 'area52/vocab_qm9')
+    args.vocab = os.path.join(base_pth, 'area52/vocab_zinc250')
     args.save_dir = 'checkpoints/'
+    args.device = 'cuda'
 
     # Training parameters
     args.shuffle = True
@@ -258,7 +259,7 @@ def main():
     )
 
     print("Initializing model...")
-    model = PSVAEModel(config, tokenizer)
+    model = PSVAEModel(config, tokenizer).to(args.device)
 
     print("Creating trainer...")
     trainer = PSVAETrainer(model, config, device='cuda' if torch.cuda.is_available() else 'cpu')

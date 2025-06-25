@@ -57,8 +57,8 @@ class PSVAEModel(nn.Module):
         self.encoder = self._create_encoder(encoder_type, encoder_config)
 
         # Initialize other components
-        self.predictor = Predictor(**(config['predictor'])).to("cuda") # TODO: make argument
-        self.decoder = VAEPieceDecoder(**(config['vae_piece_decoder']), tokenizer=tokenizer).to("cuda") # TODO: make argument
+        self.predictor = Predictor(**(config['predictor']))
+        self.decoder = VAEPieceDecoder(**(config['vae_piece_decoder']), tokenizer=tokenizer)
 
         # Loss functions
         self.pred_loss = nn.MSELoss()  # Property prediction loss

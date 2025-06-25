@@ -67,20 +67,20 @@ class VAEPieceDecoder(nn.Module):
         self.atom_embedding = nn.Embedding(
             tokenizer.num_atom_type(),
             atom_embedding_dim
-        ).to("cuda")  # Maps atom types (C, N, O, etc.) to dense vectors #TODO: device as args
+        )  # Maps atom types (C, N, O, etc.) to dense vectors
 
         self.piece_embedding = nn.Embedding(
             tokenizer.num_piece_type(),
             piece_embedding_dim
-        ).to("cuda")  # Maps molecular pieces/fragments to dense vectors #TODO: device as args
+        )  # Maps molecular pieces/fragments to dense vectors
 
         self.pos_embedding = nn.Embedding(
             max_pos,
             pos_embedding_dim
-        ).to("cuda")  # Positional encoding for sequence order (max position = 99, 0 = padding) #TODO: device as args
+        )  # Positional encoding for sequence order (max position = 99, 0 = padding)
 
         # VAE latent to RNN hidden state transformation
-        self.latent_to_rnn_hidden = nn.Linear(latent_dim, piece_hidden_dim).to("cuda") #TODO: device as args
+        self.latent_to_rnn_hidden = nn.Linear(latent_dim, piece_hidden_dim)
 
         # Recurrent neural network for sequential piece generation
         # Takes piece embeddings as input, outputs hidden states for vocabulary prediction
@@ -88,10 +88,10 @@ class VAEPieceDecoder(nn.Module):
             piece_embedding_dim,
             piece_hidden_dim,
             batch_first=True
-        ).to("cuda") #TODO: device as args
+        )
 
         # Output layer: hidden states → piece vocabulary probabilities
-        self.to_vocab = nn.Linear(piece_hidden_dim, tokenizer.num_piece_type()).to("cuda") #TODO: device as args
+        self.to_vocab = nn.Linear(piece_hidden_dim, tokenizer.num_piece_type())
 
         # =================================================================
         # GRAPH EMBEDDING COMPONENTS (Structural Representation)
