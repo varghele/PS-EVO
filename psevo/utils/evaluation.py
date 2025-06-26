@@ -6,14 +6,14 @@ from rdkit.Chem import QED
 import os
 import sys
 from rdkit.Chem import RDConfig
-#sys.path.append(os.path.join(RDConfig.RDContribDir, 'SA_Score'))
-#import sascorer
-#sys.path.remove(os.path.join(RDConfig.RDContribDir, 'SA_Score'))
+sys.path.append(os.path.join(RDConfig.RDContribDir, 'SA_Score'))
+import sascorer
+sys.path.remove(os.path.join(RDConfig.RDContribDir, 'SA_Score'))
 
 #sys.path.append(os.path.join(os.environ['CONDA_PREFIX'],'share','RDKit','Contrib'))
 
-sys.path.append("C:\\Users\\varghele\\miniconda3\\pkgs\\rdkit-2024.09.5-py311h80b0796_0\\Library\\share\\RDKit\\Contrib\\SA_Score")
-import sascorer
+#sys.path.append("C:\\Users\\varghele\\miniconda3\\pkgs\\rdkit-2024.09.5-py311h80b0796_0\\Library\\share\\RDKit\\Contrib\\SA_Score")
+#import sascorer
 
 def get_qed(molecule):
     """ Calculate QED (Quantitative Estimate of Drug-likeness) for a molecule.

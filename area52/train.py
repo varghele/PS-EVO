@@ -98,7 +98,7 @@ def get_default_args():
     args.shuffle = True
     args.batch_size = 256
     args.lr = 1e-3
-    args.epochs = 100
+    args.epochs = 10
     args.patience = 3
     args.grad_clip = 10.0
     args.num_workers = 4
@@ -285,7 +285,7 @@ def main():
     print("Running final test...")
     test_metrics = []
     for batch in test_loader:
-        metrics = trainer.model.validation_step(batch, trainer.global_step)
+        metrics = trainer.model.validation_step(batch.to(args.device), trainer.global_step)
         test_metrics.append(metrics)
 
     # Average test metrics
